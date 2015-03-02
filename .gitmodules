@@ -1,0 +1,3 @@
+[submodule "aphrodisiacs"]
+	path = aphrodisiacs
+	url = git@github.com:Gatlink/aphrodisiacs.git
