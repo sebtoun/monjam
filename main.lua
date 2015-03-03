@@ -1,5 +1,7 @@
+
+
 function love.load(arg)
-	
+
 end
 
 function love.keypressed(key, isrepeat)
@@ -8,10 +10,12 @@ function love.keypressed(key, isrepeat)
 	end
 end
 
+function 
+
 function love.update(dt)
-	
+
 end
 
 function love.draw()
-	
+
 end
