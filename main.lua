@@ -15,6 +15,8 @@ function love.load(arg)
 
 	love.mouse.setVisible(false)
 	love.mouse.setGrabbed(true)
+  cursor = love.graphics.newImage("assets/cursor.png")
+  cursorColor = { 207, 67, 67 }
 end
 
 function love.keypressed(key, isrepeat)
@@ -24,9 +26,9 @@ function love.keypressed(key, isrepeat)
 end
 
 function love.update(dt)
-	inputs = { 
+	inputs = {
 		dir = Vector.new(),
-		target = Vector.new(cam:mousepos()) 
+		target = Vector.new(cam:mousepos())
 	}
 
 	if love.keyboard.isDown('q') then
@@ -36,25 +38,25 @@ function love.update(dt)
 	if love.keyboard.isDown('d') then
 		inputs.dir = inputs.dir + Vector.right
 	end
-	
+
 	if love.keyboard.isDown('z') then
 		inputs.dir = inputs.dir + Vector.up
 	end
-	
+
 	if love.keyboard.isDown('s') then
 		inputs.dir = inputs.dir + Vector.down
 	end
-	
-	if (inputs.dir.x > 0 or inputs.dir.y > 0) then 
+
+	if (inputs.dir.x > 0 or inputs.dir.y > 0) then
 		inputs.dir = inputs.dir:normalized()
 	end
 
 	player:update(dt, inputs)
 
 	local targetx, targety = (player.pos.x * 2 + inputs.target.x) / 3, (player.pos.y * 2 + inputs.target.y) / 3
-	-- local dx, dy = targetx - cam.x, targety - cam.y
-    -- cam:move(dx * 5 * dt, dy * 5 * dt)
-    cam:lookAt(math.round(targetx), math.round(targety))
+	local dx, dy = targetx - cam.x, targety - cam.y
+  cam:move(dx * 5 * dt, dy * 5 * dt)
+  -- cam:lookAt(math.round(targetx), math.round(targety))
 end
 
 function love.draw()
@@ -71,4 +73,7 @@ function love.draw()
 	player:draw()
 	cam:detach()
 	love.graphics.print("Current FPS: "..tostring(love.timer.getFPS()), 10, 10)
+  local mousex, mousey = love.mouse.getPosition()
+  love.graphics.setColor(cursorColor)
+  love.graphics.draw(cursor, mousex, mousey, 0, 1, 1, cursor:getWidth() * 0.5, cursor:getHeight() * 0.5)
 end

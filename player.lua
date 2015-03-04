@@ -30,7 +30,7 @@ function Player:draw()
 	love.graphics.push()
 	love.graphics.translate(self.pos.x, self.pos.y)
 	love.graphics.rotate(self.rot)
-	
+
 	-- body
 	love.graphics.setColor(self.bodyColor)
 	love.graphics.rectangle('fill', -width / 2, -height / 2, width, height)
@@ -45,17 +45,17 @@ function Player:update(dt, inputs)
 	if inputs.dir then
 		-- smooth velocity
 		local targetVel = inputs.dir * self.maxSpeed
-		-- self.vel.x, self.acc.x = math.smoothDamp(self.vel.x, targetVel.x, self.acc.x, 0.2, math.huge, dt) 
-		-- self.vel.y, self.acc.y = math.smoothDamp(self.vel.y, targetVel.y, self.acc.y, 0.2, math.huge, dt)
+		self.vel.x, self.acc.x = math.smoothDamp(self.vel.x, targetVel.x, self.acc.x, 0.2, math.huge, dt)
+		self.vel.y, self.acc.y = math.smoothDamp(self.vel.y, targetVel.y, self.acc.y, 0.2, math.huge, dt)
 		-- move position
-		-- self.pos = self.pos + self.vel * dt
-		self.pos = self.pos + targetVel * dt
+		self.pos = self.pos + self.vel * dt
+		-- self.pos = self.pos + targetVel * dt
 	end
 	if inputs.target then
 		-- smooth rotation
 		local targetRot = (inputs.target - self.pos):angle() + math.pi * 0.5
-		-- self.rot, self.angularVel = math.smoothDampAngle(self.rot, targetRot, self.angularVel, 0.2, math.huge, dt) 
-		self.rot = targetRot
+		self.rot, self.angularVel = math.smoothDampAngle(self.rot, targetRot, self.angularVel, 0.2, math.huge, dt)
+		-- self.rot = targetRot
 	end
 end
 
