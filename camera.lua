@@ -31,117 +31,117 @@ local camera = {}
 camera.__index = camera
 
 local function new(x,y, zoom, rot)
-	x,y  = x or love.graphics.getWidth()/2, y or love.graphics.getHeight()/2
-	zoom = zoom or 1
-	rot  = rot or 0
-	return setmetatable({x = x, y = y, scale = zoom, rot = rot}, camera)
+    x,y  = x or love.graphics.getWidth()/2, y or love.graphics.getHeight()/2
+    zoom = zoom or 1
+    rot  = rot or 0
+    return setmetatable({x = x, y = y, scale = zoom, rot = rot}, camera)
 end
 
 function camera:lookAt(x,y)
-	self.x, self.y = x,y
-	return self
+    self.x, self.y = x,y
+    return self
 end
 
 function camera:move(x,y)
-	self.x, self.y = self.x + x, self.y + y
-	return self
+    self.x, self.y = self.x + x, self.y + y
+    return self
 end
 
 function camera:pos()
-	return self.x, self.y
+    return self.x, self.y
 end
 
 function camera:rotate(phi)
-	self.rot = self.rot + phi
-	return self
+    self.rot = self.rot + phi
+    return self
 end
 
 function camera:rotateTo(phi)
-	self.rot = phi
-	return self
+    self.rot = phi
+    return self
 end
 
 function camera:zoom(mul)
-	self.scale = self.scale * mul
-	return self
+    self.scale = self.scale * mul
+    return self
 end
 
 function camera:zoomTo(zoom)
-	self.scale = zoom
-	return self
+    self.scale = zoom
+    return self
 end
 
 function getRenderTargetWidth()
-	local target = love.graphics.getCanvas()
-	if target then
-		return target:getWidth()
-	else
-	    return love.graphics.getWidth()
-	end
+    local target = love.graphics.getCanvas()
+    if target then
+        return target:getWidth()
+    else
+        return love.graphics.getWidth()
+    end
 end
 
 function getRenderTargetHeight()
-	local target = love.graphics.getCanvas()
-	if target then
-		return target:getHeight()
-	else
-	    return love.graphics.getHeight()
-	end
+    local target = love.graphics.getCanvas()
+    if target then
+        return target:getHeight()
+    else
+        return love.graphics.getHeight()
+    end
 end
 
 function camera:attach()
-	local cx,cy = getRenderTargetWidth()/(2*self.scale), getRenderTargetHeight()/(2*self.scale)
-	love.graphics.push()
-	love.graphics.scale(self.scale)
-	love.graphics.translate(cx, cy)
-	love.graphics.rotate(self.rot)
-	love.graphics.translate(-self.x, -self.y)
+    local cx,cy = getRenderTargetWidth()/(2*self.scale), getRenderTargetHeight()/(2*self.scale)
+    love.graphics.push()
+    love.graphics.scale(self.scale)
+    love.graphics.translate(cx, cy)
+    love.graphics.rotate(self.rot)
+    love.graphics.translate(-self.x, -self.y)
 end
 
 function camera:detach()
-	love.graphics.pop()
+    love.graphics.pop()
 end
 
 function camera:draw(func)
-	self:attach()
-	func()
-	self:detach()
+    self:attach()
+    func()
+    self:detach()
 end
 
 function getRenderTargetDimensions()
-	local target = love.graphics.getCanvas()
-	if target then
-		return target:getDimensions()
-	else
-	    return love.graphics.getDimensions()
-	end
+    local target = love.graphics.getCanvas()
+    if target then
+        return target:getDimensions()
+    else
+        return love.graphics.getDimensions()
+    end
 end
 
 function camera:cameraCoords(x,y)
-	-- x,y = ((x,y) - (self.x, self.y)):rotated(self.rot) * self.scale + center
-	local w,h = getRenderTargetDimensions()
-	local c,s = cos(self.rot), sin(self.rot)
-	x,y = x - self.x, y - self.y
-	x,y = c*x - s*y, s*x + c*y
-	return x*self.scale + w/2, y*self.scale + h/2
+    -- x,y = ((x,y) - (self.x, self.y)):rotated(self.rot) * self.scale + center
+    local w,h = getRenderTargetDimensions()
+    local c,s = cos(self.rot), sin(self.rot)
+    x,y = x - self.x, y - self.y
+    x,y = c*x - s*y, s*x + c*y
+    return x*self.scale + w/2, y*self.scale + h/2
 end
 
 function camera:worldCoords(x,y)
-	-- x,y = (((x,y) - center) / self.scale):rotated(-self.rot) + (self.x,self.y)
-	local w,h = getRenderTargetDimensions()
-	local c,s = cos(-self.rot), sin(-self.rot)
-	x,y = (x - w/2) / self.scale, (y - h/2) / self.scale
-	x,y = c*x - s*y, s*x + c*y
-	return x+self.x, y+self.y
+    -- x,y = (((x,y) - center) / self.scale):rotated(-self.rot) + (self.x,self.y)
+    local w,h = getRenderTargetDimensions()
+    local c,s = cos(-self.rot), sin(-self.rot)
+    x,y = (x - w/2) / self.scale, (y - h/2) / self.scale
+    x,y = c*x - s*y, s*x + c*y
+    return x+self.x, y+self.y
 end
 
 function camera:mousepos()
-	x, y = love.mouse.getPosition()
-	sw, sh = love.graphics.getDimensions()
-	cw, ch = getRenderTargetDimensions()
-	return self:worldCoords(x * cw / sw, y * ch / sh)
+    x, y = love.mouse.getPosition()
+    sw, sh = love.graphics.getDimensions()
+    cw, ch = getRenderTargetDimensions()
+    return self:worldCoords(x * cw / sw, y * ch / sh)
 end
 
 -- the module
 return setmetatable({new = new},
-	{__call = function(_, ...) return new(...) end})
+    {__call = function(_, ...) return new(...) end})
