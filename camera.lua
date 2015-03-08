@@ -71,8 +71,26 @@ function camera:zoomTo(zoom)
 	return self
 end
 
+function getRenderTargetWidth()
+	local target = love.graphics.getCanvas()
+	if target then
+		return target:getWidth()
+	else
+	    return love.graphics.getWidth()
+	end
+end
+
+function getRenderTargetHeight()
+	local target = love.graphics.getCanvas()
+	if target then
+		return target:getHeight()
+	else
+	    return love.graphics.getHeight()
+	end
+end
+
 function camera:attach()
-	local cx,cy = love.graphics.getWidth()/(2*self.scale), love.graphics.getHeight()/(2*self.scale)
+	local cx,cy = getRenderTargetWidth()/(2*self.scale), getRenderTargetHeight()/(2*self.scale)
 	love.graphics.push()
 	love.graphics.scale(self.scale)
 	love.graphics.translate(cx, cy)
@@ -90,9 +108,18 @@ function camera:draw(func)
 	self:detach()
 end
 
+function getRenderTargetDimensions()
+	local target = love.graphics.getCanvas()
+	if target then
+		return target:getDimensions()
+	else
+	    return love.graphics.getDimensions()
+	end
+end
+
 function camera:cameraCoords(x,y)
 	-- x,y = ((x,y) - (self.x, self.y)):rotated(self.rot) * self.scale + center
-	local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+	local w,h = getRenderTargetDimensions()
 	local c,s = cos(self.rot), sin(self.rot)
 	x,y = x - self.x, y - self.y
 	x,y = c*x - s*y, s*x + c*y
@@ -101,7 +128,7 @@ end
 
 function camera:worldCoords(x,y)
 	-- x,y = (((x,y) - center) / self.scale):rotated(-self.rot) + (self.x,self.y)
-	local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+	local w,h = getRenderTargetDimensions()
 	local c,s = cos(-self.rot), sin(-self.rot)
 	x,y = (x - w/2) / self.scale, (y - h/2) / self.scale
 	x,y = c*x - s*y, s*x + c*y
@@ -109,7 +136,10 @@ function camera:worldCoords(x,y)
 end
 
 function camera:mousepos()
-	return self:worldCoords(love.mouse.getPosition())
+	x, y = love.mouse.getPosition()
+	sw, sh = love.graphics.getDimensions()
+	cw, ch = getRenderTargetDimensions()
+	return self:worldCoords(x * cw / sw, y * ch / sh)
 end
 
 -- the module
