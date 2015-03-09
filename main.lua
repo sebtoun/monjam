@@ -101,6 +101,7 @@ function love.update( dt )
     cam:move(dx * 5 * dt, dy * 5 * dt)
 
     -- reset inputs for next frame
+    resetIntent()
 end
 
 function love.draw()
