@@ -7,6 +7,7 @@ Cursor = require "cursor"
 local rnd = love.math.random
 local maxColorRnd = 180
 local player, cam, floorImg, floorColor, cursor, camDistance
+local intent = { left = {}, right = {} }
 
 function love.load( arg )
     player = Player.new()
@@ -32,36 +33,53 @@ function love.keypressed( key, isrepeat )
 end
 
 function love.mousemoved( x, y, dx, dy )
-    cursor:move(dx, dy)
+    cursor:move( dx, dy )
+end
+
+function love.mousepressed( x, y, button )
+    if button == 'l' then
+        intent.left.pressed = true
+    elseif button == 'r' then
+        intent.right.pressed = true
+    end
+end
+
+function love.mousereleased( x, y, button )
+    if button == 'l' then
+        intent.left.released = true
+    elseif button == 'r' then
+        intent.right.released = true
+    end
 end
 
 function love.update( dt )
-    inputs = {
-        dir = Vector.new(),
-        target = cursor:getPos():clone()
-    }
-
+    intent.dir = Vector.new()
+    intent.target = cursor:getPos():clone()
+    
     if love.keyboard.isDown('q') or love.keyboard.isDown('left') then
-        inputs.dir = inputs.dir + Vector.left
+        intent.dir = intent.dir + Vector.left
     end
 
     if love.keyboard.isDown('d') or love.keyboard.isDown('right') then
-        inputs.dir = inputs.dir + Vector.right
+        intent.dir = intent.dir + Vector.right
     end
 
     if love.keyboard.isDown('z') or love.keyboard.isDown('up') then
-        inputs.dir = inputs.dir + Vector.up
+        intent.dir = intent.dir + Vector.up
     end
 
     if love.keyboard.isDown('s') or love.keyboard.isDown('down') then
-        inputs.dir = inputs.dir + Vector.down
+        intent.dir = intent.dir + Vector.down
     end
 
-    if (inputs.dir.x > 0 or inputs.dir.y > 0) then
-        inputs.dir = inputs.dir:normalized()
+    if (intent.dir.x > 0 or intent.dir.y > 0) then
+        intent.dir = intent.dir:normalized()
     end
 
-    player:update( dt, inputs )
+    intent.left.down = love.mouse.isDown('l')
+    intent.right.down = love.mouse.isDown('r')
+
+    player:update( dt, intent )
     cursor:update( dt )
 
     local sight = cursor.localPos:normalized()
@@ -70,7 +88,17 @@ function love.update( dt )
     cam:move(dx * 5 * dt, dy * 5 * dt)
 
     -- print( "cam: " .. "(" .. tostring(cam.x) .. ", " .. tostring(cam.y) .. ")" .. " cursor: " .. tostring(cursor.localPos) )
-    
+    -- reset intent for next frame
+    intent = {
+        left = {
+            pressed = false,
+            released = false
+        },
+        right = {
+            pressed = false,
+            released = false
+        }
+    }
 end
 
 function love.draw()
