@@ -41,19 +41,19 @@ function love.update( dt )
         target = cursor:getPos():clone()
     }
 
-    if love.keyboard.isDown('q') then
+    if love.keyboard.isDown('q') or love.keyboard.isDown('left') then
         inputs.dir = inputs.dir + Vector.left
     end
 
-    if love.keyboard.isDown('d') then
+    if love.keyboard.isDown('d') or love.keyboard.isDown('right') then
         inputs.dir = inputs.dir + Vector.right
     end
 
-    if love.keyboard.isDown('z') then
+    if love.keyboard.isDown('z') or love.keyboard.isDown('up') then
         inputs.dir = inputs.dir + Vector.up
     end
 
-    if love.keyboard.isDown('s') then
+    if love.keyboard.isDown('s') or love.keyboard.isDown('down') then
         inputs.dir = inputs.dir + Vector.down
     end
 
