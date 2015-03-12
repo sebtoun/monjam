@@ -3,9 +3,9 @@ require "aphrodisiacs/utils/vector"
 
 Camera = require "camera"
 Cursor = require "cursor"
+Level = require "level"
 
-local floorColor = { 200, 200, 200 }
-local player, cam, floorImg, cursor, camDistance, intent
+local player, cam, world, cursor, camDistance, intent
 
 function resetIntent()
     intent = {
@@ -23,8 +23,7 @@ end
 function love.load( arg )
     player = Player.new()
     cam = Camera( 0, 0 )
-    floorImg = love.graphics.newImage( "assets/grid.jpg" )
-    
+    world = Level.new()
     cursor = Cursor.new( player, cam )
 
     -- setup mouse mode
@@ -90,8 +89,15 @@ function love.update( dt )
     intent.left.down = love.mouse.isDown('l')
     intent.right.down = love.mouse.isDown('r')
 
+    -- update world
+    world:update( dt )
+
     -- update components
     player:update( dt, intent )
+
+    -- check collisions
+    -- TODO
+
     cursor:update( dt )
 
     -- handle camera
@@ -106,19 +112,9 @@ end
 
 function love.draw()
     cam:attach()
-    
-    -- draw floor 
-    local xmin, ymin = cam:worldCoords(0, 0)
-    local xmax, ymax = cam:worldCoords(love.graphics.getWidth(), love.graphics.getHeight())
-    local w,h = floorImg:getWidth(), floorImg:getHeight()
-    love.graphics.setColor(floorColor)
-    for i = math.floor(xmin / w), math.floor(xmax / w) do
-        for j = math.floor(ymin / h), math.floor(ymax / h) do
-            love.graphics.draw(floorImg, i * w, j * h)
-        end
-    end
 
     -- draw components
+    world:draw(cam)
     player:draw()
     cursor:draw()
 
