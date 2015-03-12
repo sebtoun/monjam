@@ -13,6 +13,7 @@ local towerRadius = 30
 -- constants
 TileFloor = 0
 TileWall = 1
+TileVoid = -1
 
 local floor = math.floor
 
@@ -36,7 +37,8 @@ function Level.new()
     local new = {
         sprites = {
             [ TileFloor ] = love.graphics.newImage( "assets/floor.jpg" ),
-            [ TileWall ] = love.graphics.newImage( "assets/wall.jpg" )
+            [ TileWall ] = love.graphics.newImage( "assets/wall.jpg" ),
+            [ TileVoid ] = love.graphics.newImage( "assets/void.jpg" )
         },
         tiles = {}
     }
@@ -58,7 +60,11 @@ function Level:update( dt )
 end
 
 function Level:getTile( i, j )
-    if math.sqrt( i * i + j * j ) >= towerRadius then 
+    local distance = i * i + j * j 
+    if distance >= (towerRadius + 2) * (towerRadius + 2) then 
+        return TileVoid 
+    end
+    if distance >= towerRadius * towerRadius then 
         return TileWall 
     end
     return self.tiles[ j * worldSize + i ] or TileFloor
