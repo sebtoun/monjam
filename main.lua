@@ -7,6 +7,8 @@ Level = require "level"
 
 local player, cam, world, cursor, camDistance, intent
 
+DEBUG = true
+
 function resetIntent()
     intent = {
         left = {
@@ -20,10 +22,14 @@ function resetIntent()
     }
 end
 
+local thresh, octaves, freq = 0.5, 3, 0.01
+
 function love.load( arg )
     player = Player.new()
     cam = Camera( 0, 0 )
     world = Level.new()
+    world:generateTiles( thresh, octaves, freq )
+
     cursor = Cursor.new( player, cam )
 
     -- setup mouse mode
@@ -38,6 +44,22 @@ end
 function love.keypressed( key, isrepeat )
     if ( key == 'escape' ) then
         love.event.quit()
+    end
+    if ( key == 'j' ) then
+        freq = freq / 2
+        world:generateTiles( thresh, octaves, freq )
+    end
+    if ( key == 'k' ) then
+        freq = freq * 2
+        world:generateTiles( thresh, octaves, freq )
+    end
+    if ( key == 'h' ) then
+        octaves = math.max(octaves - 1, 1)
+        world:generateTiles( thresh, octaves, freq )
+    end
+    if ( key == 'l' ) then
+        octaves = octaves + 1
+        world:generateTiles( thresh, octaves, freq )
     end
 end
 
@@ -93,10 +115,7 @@ function love.update( dt )
     world:update( dt )
 
     -- update components
-    player:update( dt, intent )
-
-    -- check collisions
-    -- TODO
+    player:update( dt, intent, world )
 
     cursor:update( dt )
 
@@ -123,4 +142,6 @@ function love.draw()
     -- draw HUD
     love.graphics.setColor(220, 220, 220 )
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS()), 10, 10)
+    love.graphics.print("world gen: (jk) freq="..tostring(freq), 10, 30)
+    love.graphics.print("world gen: (hl) iter="..tostring(octaves), 10, 50)
 end
