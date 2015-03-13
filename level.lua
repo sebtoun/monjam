@@ -48,9 +48,9 @@ function Level.new()
 end
 
 function Level:generateTiles( thresh, iter, freq )
-    for i = -worldSize, worldSize do
-    for j = -worldSize, worldSize do
-        self.tiles[ j * worldSize + i ] = genFractalNoise2(i * tileWidth, j * tileHeight, iter, 0.5, freq) > thresh and TileWall or TileFloor 
+    for i = -worldSize / 2, worldSize / 2 do
+    for j = -worldSize / 2, worldSize / 2 do
+        self:setTile( i, j, genFractalNoise2(i * tileWidth, j * tileHeight, iter, 0.5, freq) > thresh and TileWall or TileFloor ) 
     end
     end
 end
@@ -59,15 +59,19 @@ function Level:update( dt )
 
 end
 
+function Level:setTile( i, j, tile )
+    self.tiles[ ( j + worldSize / 2 ) * worldSize + i + worldSize / 2 ] = tile
+end
+
 function Level:getTile( i, j )
     local distance = i * i + j * j 
-    if distance >= (towerRadius + 2) * (towerRadius + 2) then 
+    if distance >= ( towerRadius + 2 ) * ( towerRadius + 2 ) then 
         return TileVoid 
     end
     if distance >= towerRadius * towerRadius then 
         return TileWall 
     end
-    return self.tiles[ j * worldSize + i ] or TileFloor
+    return self.tiles[ ( j + worldSize / 2 ) * worldSize + i + worldSize / 2 ] or TileFloor
 end
 
 function Level:getTileAt( x, y )
