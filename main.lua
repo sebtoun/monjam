@@ -6,7 +6,7 @@ Cursor = require "cursor"
 Level = require "level"
 
 local player, cam, world, cursor, camDistance, intent
-
+local abs = math.abs
 DEBUG = true
 
 function resetIntent()
@@ -104,7 +104,7 @@ function love.update( dt )
         intent.dir = intent.dir + Vector.down
     end
 
-    if (intent.dir.x > 0 or intent.dir.y > 0) then
+    if abs(intent.dir.x) > 0 or abs(intent.dir.y) > 0 then
         intent.dir = intent.dir:normalized()
     end
 
