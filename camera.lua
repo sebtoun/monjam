@@ -71,7 +71,7 @@ function camera:zoomTo(zoom)
     return self
 end
 
-function getRenderTargetWidth()
+local function getRenderTargetWidth()
     local target = love.graphics.getCanvas()
     if target then
         return target:getWidth()
@@ -80,7 +80,7 @@ function getRenderTargetWidth()
     end
 end
 
-function getRenderTargetHeight()
+local function getRenderTargetHeight()
     local target = love.graphics.getCanvas()
     if target then
         return target:getHeight()
@@ -108,7 +108,7 @@ function camera:draw(func)
     self:detach()
 end
 
-function getRenderTargetDimensions()
+local function getRenderTargetDimensions()
     local target = love.graphics.getCanvas()
     if target then
         return target:getDimensions()

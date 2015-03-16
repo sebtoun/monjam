@@ -1,13 +1,17 @@
-Player = require "Player"
 require "aphrodisiacs/utils/vector"
 
 Camera = require "camera"
 Cursor = require "cursor"
-Level = require "level"
 
 local player, cam, world, cursor, camDistance, intent
 local abs = math.abs
+
+
+local entities = {}
+
 DEBUG = true
+
+tileWidth, tileHeight = 128, 128 -- default tile size
 
 function resetIntent()
     intent = {
@@ -25,12 +29,18 @@ end
 local thresh, octaves, freq = 0.5, 3, 0.01
 
 function love.load( arg )
-    player = Player.new()
+    tileWidth, tileHeight = 128, 128
+
+    Level = require "level"
+    Player = require "Player"
+
     cam = Camera( 0, 0 )
+
+    player = Player.new()
+    cursor = Cursor.new( player, cam )
+
     world = Level.new()
     world:generateTiles( thresh, octaves, freq )
-
-    cursor = Cursor.new( player, cam )
 
     -- setup mouse mode
     love.mouse.setVisible( false )
@@ -111,15 +121,19 @@ function love.update( dt )
     intent.left.down = love.mouse.isDown('l')
     intent.right.down = love.mouse.isDown('r')
 
-    -- update world
+    -- world
     world:update( dt )
 
-    -- update components
-    player:update( dt, intent, world )
+    -- entities
+    for i, e in pairs(entities) do
+        e.update( dt, world )
+    end
 
+    -- components
+    player:update( dt, intent, world )
     cursor:update( dt )
 
-    -- handle camera
+    -- camera
     local sight = cursor.localPos:normalized()
     local targetx, targety = (player.pos + sight * camDistance):unpack()
     local dx, dy = targetx - cam.x, targety - cam.y
@@ -132,8 +146,14 @@ end
 function love.draw()
     cam:attach()
 
-    -- draw components
+    -- components
     world:draw(cam)
+    
+    -- entities
+    for i, e in pairs(entities) do
+        e.draw()
+    end
+
     player:draw()
     cursor:draw()
 

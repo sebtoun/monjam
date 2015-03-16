@@ -1,10 +1,8 @@
 Level = {}
 Level.__index = Level
 
-local floorColor = { 200, 200, 200 }
-
 -- size of tiles in px
-local tileWidth, tileHeight = 128, 128
+local tileWidth, tileHeight = tileWidth, tileHeight
 
 -- max size of world in tiles
 local worldSize = 64
@@ -31,6 +29,15 @@ local function genFractalNoise2(x, y, iter, amp, freq)
         n = n + 1
     end
     return math.max(math.min(val, 1.0), -1.0)
+end
+
+local function getRenderTargetDimensions()
+    local target = love.graphics.getCanvas()
+    if target then
+        return target:getDimensions()
+    else
+        return love.graphics.getDimensions()
+    end
 end
 
 function Level.new()
@@ -82,7 +89,7 @@ function Level:getTileIndicesAt( x, y )
     return floor(x / tileWidth), floor(y / tileHeight)
 end
 
-local function collide( min, max, i, j )
+local function collide( level, min, max, i, j )
     collision = {
         depth = nil,
         normal = nil
@@ -92,7 +99,7 @@ local function collide( min, max, i, j )
     local function testOverlap( overlap, normal )
         if overlap < 0 then return false end
 
-        if ( not collision.depth ) or ( overlap < collision.depth ) then
+        if not collision.depth or overlap < collision.depth then
             collision.depth = overlap
             collision.normal = normal
         end
@@ -117,7 +124,7 @@ function Level:checkCollisionsWithWalls( min, max )
     for i = floor( min.x / w ), floor( max.x / w ) do
     for j = floor( min.y / h ), floor( max.y / h ) do
         if self:getTile( i, j ) == wall then
-            local col = collide( min, max, i, j )
+            local col = collide( self, min, max, i, j )
             if col then
                 disp = disp + col.normal * col.depth 
                 min = min + col.normal * col.depth 
@@ -131,10 +138,13 @@ function Level:checkCollisionsWithWalls( min, max )
     end
 end
 
+local floorColor = { 200, 200, 200 }
+
 function Level:draw( cam )
     -- draw tiles
     local xmin, ymin = cam:worldCoords( 0, 0 )
-    local xmax, ymax = cam:worldCoords( love.graphics.getWidth(), love.graphics.getHeight() )
+    local sw, sh = getRenderTargetDimensions()
+    local xmax, ymax = cam:worldCoords( sw, sh )
     local w, h = tileWidth, tileHeight
     local sprites = self.sprites
     love.graphics.setColor( floorColor )
