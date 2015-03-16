@@ -1,8 +1,8 @@
-local Mob = {}
-Mob.__index = Mob
+local Mobile = {}
+Mobile.__index = Mobile
 
 local Object = require "object"
-setmetatable(Mob, Object)
+setmetatable(Mobile, Object)
 
 require("aphrodisiacs/utils/vector")
 require("aphrodisiacs/utils/mathExtension")
@@ -17,10 +17,10 @@ function Mobile.new( x, y, skin, w, h )
     new.acc = Vector.new()
     new.angularVel = 0
 
-    return setmetatable(new, Mob)
+    return setmetatable(new, Mobile)
 end
 
-function Mobile:smoothMove( dt, targetVel, targetRot )
+function Mobile:smoothMove( world, dt, targetVel, targetRot )
     -- smooth velocity
     self.vel.x, self.acc.x = math.smoothDamp(self.vel.x, targetVel.x, self.acc.x, trSmooth, math.huge, dt)
     self.vel.y, self.acc.y = math.smoothDamp(self.vel.y, targetVel.y, self.acc.y, trSmooth, math.huge, dt)
@@ -38,4 +38,4 @@ function Mobile:smoothMove( dt, targetVel, targetRot )
     self.rot, self.angularVel = math.smoothDampAngle(self.rot, targetRot, self.angularVel, rotSmooth, math.huge, dt)
 end
 
-return Mob
+return Mobile
