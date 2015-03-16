@@ -5,8 +5,8 @@ Level.__index = Level
 local tileWidth, tileHeight = tileWidth, tileHeight
 
 -- max size of world in tiles
-local worldSize = 64
-local towerRadius = 30
+worldSize = 64
+towerRadius = 30
 
 -- constants
 TileFloor = 0

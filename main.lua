@@ -27,12 +27,14 @@ function resetIntent()
 end
 
 local thresh, octaves, freq = 0.5, 3, 0.01
+local sqrt2 = math.sqrt(2)
 
 function love.load( arg )
     tileWidth, tileHeight = 128, 128
 
     Level = require "level"
     Player = require "Player"
+    Enemy = require "enemy"
 
     cam = Camera( 0, 0 )
 
@@ -41,6 +43,16 @@ function love.load( arg )
 
     world = Level.new()
     world:generateTiles( thresh, octaves, freq )
+
+    -- populate
+    local i, j
+    for _ = 1,10 do
+        repeat
+            i = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
+            j = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
+        until world:getTile(i, j) == TileFloor
+        table.insert( entities, Enemy.new( (i + 0.5) * tileWidth, (j + 0.5) * tileHeight ) )
+    end
 
     -- setup mouse mode
     love.mouse.setVisible( false )
@@ -126,7 +138,7 @@ function love.update( dt )
 
     -- entities
     for i, e in pairs(entities) do
-        e.update( dt, world )
+        e:update( dt, player, world )
     end
 
     -- components
@@ -151,7 +163,7 @@ function love.draw()
     
     -- entities
     for i, e in pairs(entities) do
-        e.draw()
+        e:draw()
     end
 
     player:draw()

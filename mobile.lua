@@ -7,11 +7,11 @@ setmetatable(Mobile, Object)
 require("aphrodisiacs/utils/vector")
 require("aphrodisiacs/utils/mathExtension")
 
-local rotSmooth = 0.1
-local trSmooth = 0.12
-
 function Mobile.new( x, y, skin, w, h )
     local new = Object.new(x, y, skin, w, h)
+
+    new.rotSmooth = 0.1
+    new.trSmooth = 0.12
 
     new.vel = Vector.new()
     new.acc = Vector.new()
@@ -22,8 +22,8 @@ end
 
 function Mobile:smoothMove( world, dt, targetVel, targetRot )
     -- smooth velocity
-    self.vel.x, self.acc.x = math.smoothDamp(self.vel.x, targetVel.x, self.acc.x, trSmooth, math.huge, dt)
-    self.vel.y, self.acc.y = math.smoothDamp(self.vel.y, targetVel.y, self.acc.y, trSmooth, math.huge, dt)
+    self.vel.x, self.acc.x = math.smoothDamp(self.vel.x, targetVel.x, self.acc.x, self.trSmooth, math.huge, dt)
+    self.vel.y, self.acc.y = math.smoothDamp(self.vel.y, targetVel.y, self.acc.y, self.trSmooth, math.huge, dt)
 
     -- move position
     self:move( self.vel * dt )
@@ -35,7 +35,7 @@ function Mobile:smoothMove( world, dt, targetVel, targetRot )
     end
 
     -- smooth rotation
-    self.rot, self.angularVel = math.smoothDampAngle(self.rot, targetRot, self.angularVel, rotSmooth, math.huge, dt)
+    self.rot, self.angularVel = math.smoothDampAngle(self.rot, targetRot, self.angularVel, self.rotSmooth, math.huge, dt)
 end
 
 return Mobile
