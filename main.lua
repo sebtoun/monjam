@@ -106,6 +106,7 @@ function love.mousereleased( x, y, button )
 end
 
 function love.update( dt )
+    dt = 1.0 / 60.0 -- fixes the simulation time
     -- handle inputs
     intent.dir = Vector.new()
     intent.target = cursor:getPos():clone()

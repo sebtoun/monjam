@@ -99,7 +99,7 @@ local function collide( level, min, max, i, j )
     local function testOverlap( overlap, normal )
         if overlap < 0 then return false end
 
-        if not collision.depth or overlap < collision.depth then
+        if ( not collision.depth ) or ( overlap < collision.depth ) then
             collision.depth = overlap
             collision.normal = normal
         end
