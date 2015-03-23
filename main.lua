@@ -1,4 +1,5 @@
 require "aphrodisiacs/utils/vector"
+require "aphrodisiacs/utils/sugar"
 
 Camera = require "camera"
 Cursor = require "cursor"
@@ -6,8 +7,7 @@ Cursor = require "cursor"
 local player, cam, world, cursor, camDistance, intent
 local abs = math.abs
 
-
-local entities = {}
+local Level, Player, Enemy, Mobile
 
 DEBUG = true
 
@@ -35,6 +35,7 @@ function love.load( arg )
     Level = require "level"
     Player = require "Player"
     Enemy = require "enemy"
+    Mobile = require "mobile"
 
     cam = Camera( 0, 0 )
 
@@ -46,12 +47,12 @@ function love.load( arg )
 
     -- populate
     local i, j
-    for _ = 1,10 do
+    for _ = 1,20 do
         repeat
             i = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
             j = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
         until world:getTile(i, j) == TileFloor
-        table.insert( entities, Enemy.new( (i + 0.5) * tileWidth, (j + 0.5) * tileHeight ) )
+        Enemy.new( (i + 0.5) * tileWidth, (j + 0.5) * tileHeight )
     end
 
     -- setup mouse mode
@@ -105,6 +106,38 @@ function love.mousereleased( x, y, button )
     end
 end
 
+local maxIter = 5
+local function checkCollisions(movables, ...)
+    local iter = 1
+    while iter < maxIter do
+        local col = nil
+
+        for i, m in ipairs(movables) do
+            for j, n in ipairs(movables) do
+                if m ~= n then
+                    col = m.hitbox:collide(n.hitbox)
+                    if col then
+                        m:move(-col.normal * col.depth)
+                    end
+                end
+            end
+            for j, n in vararg(...) do
+                if m ~= n then
+                    col = m.hitbox:collide(n.hitbox)
+                    if col then
+                        m:move(-col.normal * col.depth)
+                    end
+                end
+            end
+        end
+
+        if not disp then
+            break
+        end
+        iter = iter + 1
+    end
+end
+
 function love.update( dt )
     dt = 1.0 / 60.0 -- fixes the simulation time
     -- handle inputs
@@ -138,13 +171,29 @@ function love.update( dt )
     world:update( dt )
 
     -- entities
-    for i, e in pairs(entities) do
+    for i, e in pairs(Enemy.all) do
         e:update( dt, player, world )
     end
 
     -- components
     player:update( dt, intent, world )
     cursor:update( dt )
+
+    checkCollisions(Enemy.all, player)
+
+    -- check collisions with walls
+    -- enemy collisions
+    for i, e in pairs(Enemy.all) do
+        local disp = world:checkCollisionsWithWalls( e.hitbox.min, e.hitbox.max )
+        if disp then 
+            e:move( disp )
+        end
+    end
+    -- player collisions
+    local disp = world:checkCollisionsWithWalls( player.hitbox.min, player.hitbox.max )
+    if disp then 
+        player:move( disp )
+    end
 
     -- camera
     local sight = cursor.localPos:normalized()
@@ -163,7 +212,7 @@ function love.draw()
     world:draw(cam)
     
     -- entities
-    for i, e in pairs(entities) do
+    for i, e in pairs(Enemy.all) do
         e:draw()
     end
 

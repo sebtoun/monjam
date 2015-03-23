@@ -10,7 +10,7 @@ require("aphrodisiacs/utils/vector")
 require("aphrodisiacs/utils/mathExtension")
 require("aphrodisiacs/collisions/hitbox")
 
-local size = 0.333 * tileWidth
+local size = 0.2 * tileWidth
 
 local enemySkin = {
     bodyColor = { 160, 40, 160 },
@@ -36,7 +36,7 @@ function Enemy.new( x, y )
     return setmetatable(new, Enemy)
 end
 
-local repulsionStrength = 3
+local repulsionStrength = 1
 
 function Enemy:update( dt, player, world )
     local pos = self.pos

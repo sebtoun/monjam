@@ -14,6 +14,7 @@ local playerSkin = {
     bodyColor = { 160, 40, 40 },
     headColor = { 239, 208, 207 }
 }
+
 function playerSkin:draw()
     -- body
     love.graphics.setColor(self.bodyColor)

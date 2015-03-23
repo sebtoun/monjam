@@ -1,4 +1,6 @@
-local Mobile = {}
+local Mobile = {
+    all = {}
+}
 Mobile.__index = Mobile
 
 local Object = require "object"
@@ -17,6 +19,8 @@ function Mobile.new( x, y, skin, w, h )
     new.acc = Vector.new()
     new.angularVel = 0
 
+    table.insert(Mobile.all, new)
+
     return setmetatable(new, Mobile)
 end
 
@@ -27,12 +31,6 @@ function Mobile:smoothMove( world, dt, targetVel, targetRot )
 
     -- move position
     self:move( self.vel * dt )
-
-    -- check collisions
-    local disp = world:checkCollisionsWithWalls( self.hitbox.min, self.hitbox.max )
-    if disp then 
-        self:move( disp )
-    end
 
     -- smooth rotation
     self.rot, self.angularVel = math.smoothDampAngle(self.rot, targetRot, self.angularVel, self.rotSmooth, math.huge, dt)
