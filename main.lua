@@ -47,12 +47,13 @@ function love.load( arg )
 
     -- populate
     local i, j
-    for _ = 1,20 do
+    for _ = 1, 20 do
         repeat
             i = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
             j = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
         until world:getTile(i, j) == TileFloor
         Enemy.new( (i + 0.5) * tileWidth, (j + 0.5) * tileHeight )
+        print (tostring(_)..' spawns at ('..tostring(i)..', '..tostring(j)..')')
     end
 
     -- setup mouse mode
@@ -67,22 +68,6 @@ end
 function love.keypressed( key, isrepeat )
     if ( key == 'escape' ) then
         love.event.quit()
-    end
-    if ( key == 'j' ) then
-        freq = freq / 2
-        world:generateTiles( thresh, octaves, freq )
-    end
-    if ( key == 'k' ) then
-        freq = freq * 2
-        world:generateTiles( thresh, octaves, freq )
-    end
-    if ( key == 'h' ) then
-        octaves = math.max(octaves - 1, 1)
-        world:generateTiles( thresh, octaves, freq )
-    end
-    if ( key == 'l' ) then
-        octaves = octaves + 1
-        world:generateTiles( thresh, octaves, freq )
     end
 end
 
@@ -106,7 +91,7 @@ function love.mousereleased( x, y, button )
     end
 end
 
-local maxIter = 5
+local maxIter = 2
 local function checkCollisions(movables, ...)
     local iter = 1
     while iter < maxIter do
@@ -170,11 +155,9 @@ function love.update( dt )
     -- world
     world:update( dt )
 
-    -- entities
-    for i, e in pairs(Enemy.all) do
-        e:update( dt, player, world )
-    end
-
+    -- enemies
+    Enemy.updateAll( dt, player, world )
+    
     -- components
     player:update( dt, intent, world )
     cursor:update( dt )
@@ -224,6 +207,5 @@ function love.draw()
     -- draw HUD
     love.graphics.setColor(220, 220, 220 )
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS()), 10, 10)
-    love.graphics.print("world gen: (jk) freq="..tostring(freq), 10, 30)
-    love.graphics.print("world gen: (hl) iter="..tostring(octaves), 10, 50)
+    love.graphics.print("Enemy count: "..tostring(#Enemy.all), 10, 30)
 end

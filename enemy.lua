@@ -4,6 +4,7 @@ local Enemy = {
 Enemy.__index = Enemy
 
 local Mobile = require "mobile"
+local Level = require "level"
 setmetatable(Enemy, Mobile)
 
 require("aphrodisiacs/utils/vector")
@@ -36,17 +37,25 @@ function Enemy.new( x, y )
     return setmetatable(new, Enemy)
 end
 
-local repulsionStrength = 1
+local repulsionStrength = 0.1
+local TileVoid = Void
 
 function Enemy:update( dt, player, world )
     local pos = self.pos
+    
+    if world:getTileAt(pos.x, pos.y) == Void then
+        print('Enemy felt')
+        self.dead = true
+        return
+    end
+
     local targetDir = (player.pos - pos):normalized()
     local targetRot = (player.pos - pos):angle() + math.pi * 0.5
 
     -- enemies repulse each other
     local repulsion = Vector.new()
-    for i, e in pairs( Enemy.all ) do
-        if e ~= self then
+    for i, e in ipairs( Enemy.all ) do
+        if e ~= self and not e.dead then
             local d = (pos - e.pos)
             local len = d:norm()
             repulsion = repulsion + d * (1/len * math.max(0, (repulsionStrength * 2 * size / len - repulsionStrength)) )
@@ -56,6 +65,17 @@ function Enemy:update( dt, player, world )
     -- targetDir = (targetDir + repulsion):normalized()
 
     self:smoothMove( world, dt, (targetDir + repulsion) * self.maxSpeed, targetRot )
+end
+
+function Enemy.updateAll(...)
+    living = {}
+    for i, e in ipairs(Enemy.all) do
+        e:update(...)
+        if not e.dead then
+            table.insert(living, e)
+        end
+    end
+    Enemy.all = living
 end
 
 return Enemy
