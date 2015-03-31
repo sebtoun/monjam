@@ -13,7 +13,7 @@ DEBUG = true
 
 tileWidth, tileHeight = 128, 128 -- default tile size
 
-function resetIntent()
+local function resetIntent()
     intent = {
         left = {
             pressed = false,
@@ -39,11 +39,11 @@ function love.load( arg )
 
     cam = Camera( 0, 0 )
 
-    player = Player.new()
-    cursor = Cursor.new( player, cam )
-
     world = Level.new()
     world:generateTiles( thresh, octaves, freq )
+
+    player = Player.new( 0, 0, world )
+    cursor = Cursor.new( player, cam )
 
     -- populate
     local i, j
@@ -52,8 +52,8 @@ function love.load( arg )
             i = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
             j = love.math.random(-towerRadius/sqrt2, towerRadius/sqrt2)
         until world:getTile(i, j) == TileFloor
-        Enemy.new( (i + 0.5) * tileWidth, (j + 0.5) * tileHeight )
-        print (tostring(_)..' spawns at ('..tostring(i)..', '..tostring(j)..')')
+        Enemy.new( (i + 0.5) * tileWidth, (j + 0.5) * tileHeight, world )
+        -- print (tostring(_)..' spawns at ('..tostring(i)..', '..tostring(j)..')')
     end
 
     -- setup mouse mode
@@ -91,7 +91,7 @@ function love.mousereleased( x, y, button )
     end
 end
 
-local maxIter = 2
+local maxIter = 3
 local function checkCollisions(movables, ...)
     local iter = 1
     while iter < maxIter do
@@ -116,7 +116,7 @@ local function checkCollisions(movables, ...)
             end
         end
 
-        if not disp then
+        if not col then
             break
         end
         iter = iter + 1
@@ -156,10 +156,10 @@ function love.update( dt )
     world:update( dt )
 
     -- enemies
-    Enemy.updateAll( dt, player, world )
+    Enemy.updateAll( dt, player )
     
     -- components
-    player:update( dt, intent, world )
+    player:update( dt, intent )
     cursor:update( dt )
 
     checkCollisions(Enemy.all, player)

@@ -6,7 +6,7 @@ local tileWidth, tileHeight = tileWidth, tileHeight
 
 -- max size of world in tiles
 worldSize = 64
-towerRadius = 30
+towerRadius = 10
 
 -- constants
 TileFloor = 0

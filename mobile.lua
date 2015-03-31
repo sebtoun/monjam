@@ -24,7 +24,7 @@ function Mobile.new( x, y, skin, w, h )
     return setmetatable(new, Mobile)
 end
 
-function Mobile:smoothMove( world, dt, targetVel, targetRot )
+function Mobile:smoothMove( dt, targetVel, targetRot )
     -- smooth velocity
     self.vel.x, self.acc.x = math.smoothDamp(self.vel.x, targetVel.x, self.acc.x, self.trSmooth, math.huge, dt)
     self.vel.y, self.acc.y = math.smoothDamp(self.vel.y, targetVel.y, self.acc.y, self.trSmooth, math.huge, dt)
