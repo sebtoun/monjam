@@ -3,6 +3,7 @@ Equipment.__index = Equipment
 
 require("aphrodisiacs/collisions/hitbox")
 require("aphrodisiacs/utils/vector")
+mobs = require('enemy')
 
 function Equipment.new(assignment, player, world)
     local new = {
@@ -46,20 +47,24 @@ function Equipment.Sword(...)
     end
 
     function sword:update(dt, inputs)
-        if self.hitbox then
-            local ttl = self.hitbox.ttl
+        local hit = self.hitbox
+        if hit then
+            local ttl = hit.ttl
             ttl = ttl - dt
             if ttl > 0 then
-                self.hitbox.ttl = ttl
-                self.hitbox:place( relativePos( self.player, self.localPos ) )
+                hit.ttl = ttl
+                hit:place( relativePos( self.player, self.localPos ) )
+                -- deal damages on collisions
+                for i, m in pairs(mobs.all) do
+                    if hit:collide(m.hitbox) then
+                        m.dead = true
+                    end
+                end
             else
                 self.hitbox = nil
             end
         end
         Equipment.update(self, dt, inputs)
-
-        -- deal damages on collisions
-        -- and destroy hitbox if collided
     end
 
     function sword:draw()
